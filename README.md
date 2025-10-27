@@ -1,71 +1,70 @@
-# Classification de Genres Musicaux (Projet DS52)
+# Music Genre Classification (DS52 Project)
 
-Ce projet nous a été donné dans le cadre de mon cursus scolaire à l'UTBM.
-J'étais en groupe avec Alban MORIN et Rémi  BONNET.
+This project was given as part of my curriculum at UTBM. I was in a group with Alban MORIN and Rémi BONNET.
 
-Ce projet explore la classification de genres musicaux en utilisant des caractéristiques audio extraites de la base de données GTZAN. L'objectif est de comparer les performances d'un modèle classique (Support Vector Machine) et d'un réseau de neurones (construit avec Keras) pour prédire le genre d'un morceau de musique à partir de ses caractéristiques.
+This project explores the classification of music genres using audio features extracted from the GTZAN database. The objective is to compare the performance of a classic model (Support Vector Machine) and a neural network (built with Keras) to predict the genre of a music track from its features.
 
-Ce notebook utilise également [Weights & Biases (Wandb)](https://wandb.ai/) pour le suivi des expérimentations, y compris la journalisation des métriques, des graphiques, et même des échantillons audio.
+This notebook also uses [Weights & Biases (Wandb)](https://wandb.ai/) for experiment tracking, including logging metrics, graphs, and even audio samples.
 
-## Données
+## 🎵 Data
 
-Le projet utilise le **GTZAN Dataset (Music Genre Classification)**, accessible via Kaggle.
+The project uses the **GTZAN Dataset (Music Genre Classification)**, accessible via Kaggle.
 
-* **Source :** [GTZAN Dataset sur Kaggle](https://www.kaggle.com/datasets/andradaolteanu/gtzan-dataset-music-genre-classification)
-* **Fichiers utilisés :**
-    * `Data/features_3_sec.csv` : Caractéristiques audio extraites de segments de 3 secondes. C'est le jeu de données principal utilisé pour l'entraînement des modèles.
-    * `Data/features_30_sec.csv` : Caractéristiques extraites de segments de 30 secondes (chargé mais moins utilisé pour la modélisation dans ce notebook).
-    * `Data/genres_original/` : Contient les fichiers audio bruts (ex: `.wav`) utilisés pour l'analyse exploratoire (visualisation de spectrogrammes, etc.).
+* **Source:** [GTZAN Dataset on Kaggle](https://www.kaggle.com/datasets/andradaolteanu/gtzan-dataset-music-genre-classification)
+* **Files used:**
+    * `Data/features_3_sec.csv`: Audio features extracted from 3-second segments. This is the main dataset used for training the models.
+    * `Data/features_30_sec.csv`: Features extracted from 30-second segments (loaded but less used for modeling in this notebook).
+    * `Data/genres_original/`: Contains the raw audio files (e.g., `.wav`) used for exploratory analysis (spectrogram visualization, etc.).
 
-Les données comprennent 10 genres musicaux :
+The data includes 10 music genres:
 `blues`, `classical`, `country`, `disco`, `hiphop`, `jazz`, `metal`, `pop`, `reggae`, `rock`.
 
-## Méthodologie
+## 🛠️ Methodology
 
-Le notebook suit les étapes suivantes :
+The notebook follows these steps:
 
-### 1. Chargement et Exploration des Données (EDA)
+### 1. Data Loading and Exploration (EDA)
 
-* Importation des bibliothèques nécessaires (`pandas`, `librosa`, `sklearn`, `tensorflow`, `wandb`).
-* Téléchargement des données via `kagglehub`.
-* Analyse initiale des dataframes (vérification des valeurs nulles, description des caractéristiques, distribution des labels).
-* Analyse audio exploratoire :
-    * Chargement d'échantillons audio bruts (rock et classique) avec `librosa`.
-    * Visualisation des formes d'onde (Waveforms).
-    * Calcul et affichage des STFT (Short-Time Fourier Transform).
-    * Calcul et affichage des Mel Spectrogrammes.
+* Importing necessary libraries (`pandas`, `librosa`, `sklearn`, `tensorflow`, `wandb`).
+* Downloading data via `kagglehub`.
+* Initial analysis of dataframes (checking for null values, feature description, label distribution).
+* Exploratory audio analysis:
+    * Loading raw audio samples (rock and classical) with `librosa`.
+    * Visualizing waveforms.
+    * Calculating and displaying STFT (Short-Time Fourier Transform).
+    * Calculating and displaying Mel Spectrograms.
 
-### 2. Prétraitement des Données
+### 2. Data Preprocessing
 
-* Utilisation du jeu de données `features_3_sec.csv`.
-* Encodage des labels textuels (genres) en valeurs numériques (`LabelEncoder`).
-* Mise à l'échelle des caractéristiques (features) à l'aide de `StandardScaler`.
-* Séparation des données en ensembles d'entraînement (70%) et de test (30%) (`train_test_split`).
+* Using the `features_3_sec.csv` dataset.
+* Encoding textual labels (genres) into numerical values (`LabelEncoder`).
+* Scaling the features using `StandardScaler`.
+* Splitting the data into training (70%) and test (30%) sets (`train_test_split`).
 
-### 3. Modélisation et Évaluation
+### 3. Modeling and Evaluation
 
-Deux modèles ont été entraînés et comparés :
+Two models were trained and compared:
 
-#### Modèle A : Support Vector Machine (SVM)
+#### Model A: Support Vector Machine (SVM)
 
-1.  **SVM Basique :** Un premier modèle `SVC` de Scikit-learn est entraîné, atteignant une précision d'environ **76.3%**.
-2.  **SVM avec GridSearchCV :** Les hyperparamètres du `SVC` (spécifiquement `C` et `gamma`) sont optimisés à l'aide de `GridSearchCV`.
-    * *Meilleurs paramètres trouvés :* `{'C': 100, 'gamma': 0.01, 'kernel': 'rbf'}`
-    * Le modèle optimisé atteint une précision d'environ **89.9%**.
+1.  **Basic SVM:** A first Scikit-learn `SVC` model is trained, achieving an accuracy of about **76.3%**.
+2.  **SVM with GridSearchCV:** The `SVC` hyperparameters (specifically `C` and `gamma`) are optimized using `GridSearchCV`.
+    * *Best parameters found:* `{'C': 100, 'gamma': 0.01, 'kernel': 'rbf'}`
+    * The optimized model achieves an accuracy of about **89.9%**.
 
-#### Modèle B : Réseau de Neurones (Keras)
+#### Model B: Neural Network (Keras)
 
-1.  **Architecture :** Un réseau de neurones profond (MLP) est construit avec Keras `Sequential`.
-    * Couches `Dense` (1024, 512, 256, 128, 64) avec activation `relu`.
-    * Couches `Dropout` (0.3) pour la régularisation.
-    * Couche de sortie `Dense` (10 neurones) avec activation `softmax` pour la classification multi-classe.
-2.  **Compilation :** Optimiseur `adam` et fonction de perte `sparse_categorical_crossentropy`.
-3.  **Entraînement :** Le modèle est entraîné sur 100 époques.
-4.  **Évaluation :** Les performances (accuracy, loss) sont tracées pour l'entraînement et la validation. Un rapport de classification et une matrice de confusion sont générés pour évaluer les résultats sur l'ensemble de test.
+1.  **Architecture:** A deep neural network (MLP) is built with Keras `Sequential`.
+    * `Dense` layers (1024, 512, 256, 128, 64) with `relu` activation.
+    * `Dropout` layers (0.3) for regularization.
+    * Output `Dense` layer (10 neurons) with `softmax` activation for multi-class classification.
+2.  **Compilation:** `adam` optimizer and `sparse_categorical_crossentropy` loss function.
+3.  **Training:** The model is trained for 100 epochs.
+4.  **Evaluation:** Performance (accuracy, loss) is plotted for training and validation. A classification report and confusion matrix are generated to evaluate the results on the test set.
 
-## ⚙️ Dépendances
+## ⚙️ Dependencies
 
-Pour exécuter ce notebook, les principales bibliothèques suivantes sont requises :
+To run this notebook, the following main libraries are required:
 
 ```bash
 pandas
@@ -78,14 +77,15 @@ matplotlib
 seaborn
 ```
 
-Vous pouvez les installer via pip :
+You can install them via pip:
 ```bash
 pip install pandas kaggle tensorflow wandb scikit-learn librosa matplotlib seaborn
 ```
 
-## Résultats 
+## Résults
 
-La comparaison des performances a montré que :
-- Le SVM optimisé (GridSearchCV) a atteint une précision d'environ 89.9% sur l'ensemble de test.
-- Le Réseau de Neurones (Keras) a atteint une précision de test d'environ 86.7% après 100 époques.
-La matrice de confusion du modèle Keras montre que certaines confusions persistent, notamment entre des genres musicalement proches comme le rock et le disco . Le SVM optimisé s'est avéré légèrement plus performant sur ces données tabulaires de caractéristiques.
+The performance comparison showed that:
+- The optimized SVM (GridSearchCV) achieved an accuracy of approximately 89.9% on the test set.
+- The Neural Network (Keras) achieved a test accuracy of approximately 86.7% after 100 epochs.
+
+The confusion matrix for the Keras model shows that some confusion persists, particularly between musically similar genres like rock and disco. The optimized SVM proved to be slightly more performant on this tabular feature data.
